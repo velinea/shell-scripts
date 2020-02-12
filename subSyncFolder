@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# set the prompt used by select, replacing "#?"
+PS3="Use number to select a file or 'stop' to cancel: "
+
+echo "Choose the srt file to be synchronized"
+
+# allow the user to choose a file
+select FILENAME in *.srt
+do
+  # leave the loop if the user says 'stop'
+  if [[ "$REPLY" == stop ]]; then break; fi
+
+  # complain if no file was selected, and loop to ask again
+  if [[ "$FILENAME" == "" ]]
+  then
+    echo "'$REPLY' is not a number"
+    continue
+  fi
+
+  # Save for later
+  REPAIR=$FILENAME
+
+  # it'll ask for another unless we leave the loop
+  break
+done
+
+echo "Choose either video file or another srt file as reference"
+
+# allow the user to choose a file
+select FILENAME in *
+do
+  # leave the loop if the user says 'stop'
+  if [[ "$REPLY" == stop ]]; then break; fi
+
+  # complain if no file was selected, and loop to ask again
+  if [[ "$FILENAME" == "" ]]
+  then
+    echo "'$REPLY' is not a number"
+    continue
+  fi
+
+  # Save for later
+  REF=$FILENAME
+
+  # it'll ask for another unless we leave the loop
+  break
+done
+
+BASENAME="${FILENAME%%.*}"
+
+if [ "$REPAIR" != "$REF" ] ; then
+  echo
+  echo "Synchronizing ==> $REPAIR"
+  echo "to ==> $REF"
+  echo "saving the file as ==> $BASENAME.srt"
+  echo
+
+  alass-linux64 "$REF" "$REPAIR" "$BASENAME".srt
+else
+  echo "Reference srt can't be the same as the srt to be repaired"
+fi
